@@ -208,7 +208,7 @@ impl<'a> MstpFrame<'a> {
 
         let npdu = match frame_type {
             MstpFrameType::BacnetDataExpectingReply
-            | MstpFrameType::BacnetExtendedDataNotExpectingReply => Some(NetworkPdu::decode(
+            | MstpFrameType::BacnetDataNotExpectingReply => Some(NetworkPdu::decode(
                 &mut Reader::new_with_len(data_len),
                 data_with_crc,
             )?),
