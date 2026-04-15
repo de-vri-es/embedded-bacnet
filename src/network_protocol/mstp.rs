@@ -145,7 +145,10 @@ impl<'a> MstpFrame<'a> {
     /// Does not modify the position of the reader.
     pub fn scan(reader: &mut Reader, buf: &'a [u8]) -> Result<usize, ScanError> {
         let buf = &buf[reader.index..reader.end];
-        let garbage = buf.array_windows::<2>().take_while(|&&data| data != PREAMBLE).count();
+        let garbage = buf
+            .array_windows::<2>()
+            .take_while(|&&data| data != PREAMBLE)
+            .count();
         if garbage > 0 {
             return Err(ScanError::Garbage(garbage));
         }
@@ -160,7 +163,11 @@ impl<'a> MstpFrame<'a> {
         }
 
         let data_len = u16::from_be_bytes([buf[5], buf[6]]) as usize;
-        Ok(data_len + 8)
+        if data_len > 0 {
+            Ok(data_len + 8 + 2) // +8 for header, +2 for data CRC
+        } else {
+            Ok(8) // No data, no CRC
+        }
     }
 
     #[cfg_attr(feature = "alloc", bacnet_macros::remove_lifetimes_from_fn_args)]
